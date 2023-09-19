@@ -2,11 +2,16 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mysql from 'mysql';
 import cors from 'cors';
-import './env.js'
+import './env.js';
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'https://myproject.com',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -22,7 +27,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // routes
 app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>' + process.env.API_KEY)
+  res.send('<h1>Hello world</h1>');
 });
 
 app.post('/login', (req, res) => {
