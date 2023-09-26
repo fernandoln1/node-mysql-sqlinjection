@@ -2,16 +2,24 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mysql from 'mysql';
 import cors from 'cors';
+import bcrypt from 'bcrypt';
 import './env.js';
 
 const app = express();
 
-app.use(
-  cors({
-    origin: 'https://myproject.com',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  })
-);
+
+// config bcrypt
+const saltRounds = 15;
+const bcryptPassword =  process.env.BCRYPT_PASSWORD;
+
+
+console.log(bcryptPassword);
+// app.use(
+//   cors({
+//     origin: 'https://myproject.com',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   })
+// );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -28,6 +36,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // routes
 app.get('/', (req, res) => {
   res.send('<h1>Hello world</h1>');
+});
+
+app.post('/register', (req, res) => {
+  let hash;
+  const {password} = req.body;
+
+  bcrypt.genSalt(saltRounds, function(err, salt) {
+    bcrypt.hash(password, salt, function(error, hashPassword) {
+      hash = hashPassword;
+      console.log(hash)
+      res.send(hash)
+    })
+  })
+
+
 });
 
 app.post('/login', (req, res) => {
