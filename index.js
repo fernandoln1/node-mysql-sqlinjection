@@ -5,7 +5,25 @@ import cors from 'cors';
 import bcrypt from 'bcrypt';
 import './env.js';
 
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+
 const app = express();
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAbqzZ7h1T-7MlziJMdCme9Jd0jdu7w-lU",
+  authDomain: "utmat-fernando.firebaseapp.com",
+  projectId: "utmat-fernando",
+  storageBucket: "utmat-fernando.appspot.com",
+  messagingSenderId: "24545731960",
+  appId: "1:24545731960:web:964deb9eff1973d746948d",
+  measurementId: "G-Q8F4R2ZZLN"
+};
+
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 
 // config bcrypt
