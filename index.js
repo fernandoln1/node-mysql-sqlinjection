@@ -1,108 +1,57 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import mysql from 'mysql';
 import cors from 'cors';
-import bcrypt from 'bcrypt';
 import './env.js';
-
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import router from './routes/router.js';
+import verifyApiKey from './middlewares/verifyApiKey.js';
+// import morgan
+import morgan from 'morgan';
+// TODO: Add SDKs for Firebase products that you want to use
 
 const app = express();
 
+// config firebase
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAbqzZ7h1T-7MlziJMdCme9Jd0jdu7w-lU",
-  authDomain: "utmat-fernando.firebaseapp.com",
-  projectId: "utmat-fernando",
-  storageBucket: "utmat-fernando.appspot.com",
-  messagingSenderId: "24545731960",
-  appId: "1:24545731960:web:964deb9eff1973d746948d",
-  measurementId: "G-Q8F4R2ZZLN"
+  apiKey: process.env.FIREBASE_APIKEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
 };
 
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
+// initialize firebase database
+// https://firebase.google.com/docs/firestore/web/start
+export const db = getFirestore(firebaseApp);
 
 // config bcrypt
 const saltRounds = 15;
-const bcryptPassword =  process.env.BCRYPT_PASSWORD;
 
-
-console.log(bcryptPassword);
-// app.use(
-//   cors({
-//     origin: 'https://myproject.com',
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   })
-// );
+app.use(cors());
+app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// mysql connection with root user and no password
-// const connection = mysql.createConnection({
-//   host: ,
-//   user: 'root',
-//   password: 'password',
-//   database: 'example_db',
-//   insecureAuth: true,
-// });
-// connection.connect();
+app.use('/api', router);
+
+app.use(verifyApiKey);
 
 // routes
 app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
+  res.send('Hello world from render! Alejandro Herrera, Juanito perez \n🥸');
 });
 
-app.post('/register', (req, res) => {
-  let hash;
-  const {password} = req.body;
-
-  bcrypt.genSalt(saltRounds, function(err, salt) {
-    bcrypt.hash(password, salt, function(error, hashPassword) {
-      hash = hashPassword;
-      console.log(hash)
-      res.send(hash)
-    })
-  })
-
-
-});
-
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  console.log(
-    req.body,
-    `select email, password from users where email='${email}' and password='${password}'`
-  );
-  // without mysql.escape
-  // connection.query(
-  //   `select email, password from users where email='${email}' and password='${password}'`,
-  //   (err, results, fields) => {
-  //     if (err) {
-  //       return res.status(500).send(err);
-  //     }
-  //     console.log(results);
-  //     return res.send(results);
-  //   }
-  // );
-  // with mysql.escape
-  //   connection.query(
-  //   `select email, password from users where email=${mysql.escape(
-  //       email
-  //     )} and password=${mysql.escape(password)}`,
-  //     (err, results, fields) => {
-  //       if (err) {
-  //         return res.status(500).send(err);
-  //       }
-  //       console.log(results);
-  //       return res.send(results);
-  //     }
-  //   );
-});
-
-app.listen(3000, () => {
-  console.log('Example app listening on port 3000!');
+app.listen(process.env.PORT || 3000, () => {
+  console.log('App listening on port 3000!');
 });
